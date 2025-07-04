@@ -45,9 +45,21 @@ class Reader:
         elif maxminavg == "avg":
             print(sum(values) / len(values))
 
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Пример использования argparse")
+    parser.add_argument("--file", help="название датасета", required=True)
+    parser.add_argument("--where", help="фильтр по колонкам")
+    parser.add_argument("--agregate", help="агрегация")
 
+    args = parser.parse_args()
+
+    reader = Reader(args.file)
+    reader._filter(args.where)
+    reader.agregate(args.agregate)
+'''
 Reader("data.csv")._filter("brand>samsung") # не вызывается ошибка и программа продолжает работать
 Reader("data.csv")._filter("brand=samsung") # корректно проверяется сохраняя типобезопасность(как и два ниже)
 Reader("data.csv")._filter("price=299")
 Reader("data.csv")._filter("rating>4.5")
 Reader("data.csv").agregate("rating==avg")
+'''
