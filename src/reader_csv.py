@@ -20,21 +20,34 @@ class Reader:
     def _filter(self, condition):
         field, operator, value = self.filter_condition_parser(condition)
         for item in self.data:
-            try:
-                float_item_field = float(item[field])
-                if operator == ">" and float_item_field > value:
+            if isinstance(value, float):
+                if operator == ">" and float(item[field]) > value:
                     print(list(item.values()))
-                elif operator == "<" and float_item_field < value:
+                elif operator == "<" and float(item[field]) < value:
                     print(list(item.values()))
-                elif operator in ("=", "==") and float_item_field == value:
+                elif operator == "=" and float(item[field]) == value:
                     print(list(item.values()))
-            except:
-                continue
-            if operator in ("=", "==") and item[field] == value:
+            elif operator == "=" and item[field] == value:
                 print(list(item.values()))
     
+    def agregate_parser(self, condition):
+        result = re.split(r"(\w+)([><=]+)(\w+)", condition)[1:-1] # ['ratings', '==', '4.5'] ['name', '==', 'iphone 12']
+        field, _, maxminavg = result
+        return field, maxminavg
 
-Reader("data.csv")._filter("brand>samsung")
-Reader("data.csv")._filter("brand=samsung")
+    def agregate(self, condition):
+        field, maxminavg = self.agregate_parser(condition)
+        values = [float(item[field]) for item in self.data]
+        if maxminavg == "min":
+            print(min(values))
+        elif maxminavg == "max":
+            print(max(values))
+        elif maxminavg == "avg":
+            print(sum(values) / len(values))
+
+
+Reader("data.csv")._filter("brand>samsung") # не вызывается ошибка и программа продолжает работать
+Reader("data.csv")._filter("brand=samsung") # корректно проверяется сохраняя типобезопасность(как и два ниже)
 Reader("data.csv")._filter("price=299")
 Reader("data.csv")._filter("rating>4.5")
+Reader("data.csv").agregate("rating==avg")
