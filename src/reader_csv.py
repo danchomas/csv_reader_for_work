@@ -1,6 +1,7 @@
 import csv
 import argparse
 import re
+from tabulate import tabulate
 
 class Reader:
     def __init__(self, path_to_the_file):
@@ -19,31 +20,39 @@ class Reader:
     
     def _filter(self, condition):
         field, operator, value = self.filter_condition_parser(condition)
+        filtered_data = []
         for item in self.data:
             if isinstance(value, float):
                 if operator == ">" and float(item[field]) > value:
-                    print(list(item.values()))
+                    filtered_data.append(item)
                 elif operator == "<" and float(item[field]) < value:
-                    print(list(item.values()))
+                    filtered_data.append(item)
                 elif operator == "=" and float(item[field]) == value:
-                    print(list(item.values()))
+                    filtered_data.append(item)
             elif operator == "=" and item[field] == value:
-                print(list(item.values()))
+                filtered_data.append(item)
+        self.data = filtered_data
+        result = tabulate(filtered_data, headers='keys', tablefmt='grid')
+        return result
     
     def agregate_parser(self, condition):
-        result = re.split(r"(\w+)([><=]+)(\w+)", condition)[1:-1] # ['ratings', '==', '4.5'] ['name', '==', 'iphone 12']
+        result = re.split(r"(\w+)([><=]+)(\w+)", condition)[1:-1]
         field, _, maxminavg = result
         return field, maxminavg
 
     def agregate(self, condition):
         field, maxminavg = self.agregate_parser(condition)
         values = [float(item[field]) for item in self.data]
+        count = 0
         if maxminavg == "min":
-            print(min(values))
+            cpunt = min(values)
         elif maxminavg == "max":
-            print(max(values))
+            count = max(values)
         elif maxminavg == "avg":
-            print(sum(values) / len(values))
+            count = sum(values) / len(values)
+        data = [dict(field=count)]
+        return tabulate(data, headers='keys', tablefmt='grid')
+        
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Пример использования argparse")
@@ -54,8 +63,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     reader = Reader(args.file)
-    reader._filter(args.where)
-    reader.agregate(args.agregate)
+    print(reader._filter(args.where))
+    print(reader.agregate(args.agregate))
 '''
 Reader("data.csv")._filter("brand>samsung") # не вызывается ошибка и программа продолжает работать
 Reader("data.csv")._filter("brand=samsung") # корректно проверяется сохраняя типобезопасность(как и два ниже)
