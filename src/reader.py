@@ -2,7 +2,7 @@ import csv
 import argparse
 import re
 import sys
-from typing import List, Dict, Tuple, Union, Optional
+from typing import List, Dict, Tuple, Union
 from tabulate import tabulate
 
 
@@ -11,14 +11,10 @@ class Reader:
         try:
             with open(path_to_the_file, "r") as file:
                 self.data = list(csv.DictReader(file))
-
                 if not self.data:
-                    print("файл пуст")
-                    sys.exit(0)
-                
+                    raise Exception("файл пуст")
         except FileNotFoundError:
-            print("Файл не был найден")
-            sys.exit(1)
+            raise Exception("файл не был найден")
     
     def get_data(self) -> List[Dict]:
         return self.data
@@ -27,13 +23,9 @@ class Reader:
 class Filtrator:
     def filter_condition_parser(self, condition: str) -> Tuple[str, str, Union[str, float]]:
         result = re.split(r"(.+?)([><=]+)(.+)", condition)[1:-1]
-
         if not result:
-            print("неверный формат для where")
-            sys.exit(1)
-        
+            raise("неверный формат условия для фильтра")
         field, operator, value = result
-            
         try:
             value = float(value)
         except ValueError:
@@ -45,7 +37,7 @@ class Filtrator:
         field, operator, value = self.filter_condition_parser(condition)
         filtered_data = []
         if field not in data[0]:
-            return f"Поле '{field}' не найдено в данных"
+            raise(f"поле '{field}' не найдено в данных")
         for item in data:
             if isinstance(value, float):
                 if operator == ">" and float(item[field]) > value:
@@ -59,25 +51,21 @@ class Filtrator:
         return filtered_data
 
 class Aggregator:
-    def agregate_parser(self, condition: str) -> Tuple[str, str]:
+    def aggregate_parser(self, condition: str) -> Tuple[str, str]:
         try:
             field, operation = condition.split("=")
         except:
-            print("неверный формат для agregate")
-            sys.exit(1)
+            raise("неверный формат для aggregate")
         return field, operation
 
-    def agregate(self, data: List[Dict], condition: str) -> str:
-        field, operation = self.agregate_parser(condition)
-
+    def aggregate(self, data: List[Dict], condition: str) -> str:
+        field, operation = self.aggregate_parser(condition)
         if field not in data[0]:
-            print(f"Поле '{field}' не найдено в данных")
-            sys.exit(1)
+            raise(f"поле '{field}' не найдено в данных")
         try:
             values = [float(item[field]) for item in data]
         except ValueError:
-            print(f"Поле '{field}' содержит нечисловые значения")
-            sys.exit(0)
+            raise(f"поле '{field}' содержит нечисловые значения")
         count = 0
         if operation == "min":
             count = min(values)
@@ -86,7 +74,7 @@ class Aggregator:
         elif operation == "avg":
             count = sum(values) / len(values)
         else:
-            return "такой операции в агрегации пока что не предусмотрено"
+            raise("неверный оператор")
         result = [{operation: count}]
         return result
 
@@ -103,28 +91,3 @@ if __name__ == "__main__":
     parser.add_argument("--where", help="Условие фильтрации (например, 'age>30')")
     parser.add_argument("--aggregate", help="Агрегация данных (например, 'age=avg')")
     
-    args = parser.parse_args()
-    
-    # Чтение данных
-    reader = Reader(args.file)
-    data = reader.get_data()
-    
-    # Применение фильтрации, если указано
-    if args.where:
-        filtrator = Filtrator()
-        data = filtrator.filter_data(data, args.where)
-        if isinstance(data, str):  # Обработка ошибки из filter_data
-            print(data)
-            sys.exit(1)
-    
-    # Применение агрегации, если указано
-    if args.aggregate:
-        aggregator = Aggregator()
-        result = aggregator.agregate(data, args.aggregate)
-        if isinstance(result, str):  # Обработка ошибки из agregate
-            print(result)
-            sys.exit(1)
-        data = result
-    
-    # Вывод результатов
-    print(Presenter.print_data(data))
