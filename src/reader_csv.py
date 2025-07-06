@@ -20,7 +20,6 @@ class Reader:
         except:
             result = re.split(r"(.+)([><=]+)(.+)", condition)[1:-1]
             field, operator, value = result
-        print(field, operator, value)
         return field, operator, value
     
     def _filter(self, condition: str) -> str:
@@ -41,7 +40,7 @@ class Reader:
         return result
     
     def agregate_parser(self, condition: str) -> Tuple[str, str]:
-        result = re.split(r"(\w+)([><=]+)(\w+)", condition)[1:-1]
+        result = re.split(r"(.+)([><=]+)(.+)", condition)[1:-1]
         field, _, maxminavg = result
         return field, maxminavg
 
