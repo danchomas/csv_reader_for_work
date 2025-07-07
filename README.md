@@ -1,8 +1,9 @@
 # csv_reader_for_work
 Инструмент для обработки данных
+
 Использование
 
-    python3 main.py --file "путь/к/файлу.csv"
+    python3 main.py --file "data/data.csv"
 
 С фильтрацией
 
@@ -11,6 +12,11 @@
 С агрегацией
 
     python3 main.py --file "data/data.csv" --aggregate "price=max"
+
+
+![изображение](https://github.com/user-attachments/assets/190c2a67-752e-4122-bbac-6da7f30075c3)
+
+
 
 Комбинированный пример
 
