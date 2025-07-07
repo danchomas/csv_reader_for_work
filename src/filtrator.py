@@ -1,8 +1,11 @@
+import re
+from typing import Tuple, List, Union, Dict
+
 class Filtrator:
     def filter_condition_parser(self, condition: str) -> Tuple[str, str, Union[str, float]]:
         result = re.split(r"(.+?)([><=]+)(.+)", condition)[1:-1]
         if not result:
-            raise("неверный формат условия для фильтра")
+            raise ValueError("неверный формат условия для фильтра")
         field, operator, value = result
         try:
             value = float(value)
@@ -15,7 +18,7 @@ class Filtrator:
         field, operator, value = self.filter_condition_parser(condition)
         filtered_data = []
         if field not in data[0]:
-            raise(f"поле '{field}' не найдено в данных")
+            raise ValueError(f"поле '{field}' не найдено в данных")
         for item in data:
             if isinstance(value, float):
                 if operator == ">" and float(item[field]) > value:
