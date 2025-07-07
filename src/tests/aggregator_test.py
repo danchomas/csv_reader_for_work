@@ -1,6 +1,6 @@
 import pytest
 from typing import List, Dict
-from aggregator import Aggregator
+from src.aggregator import Aggregator
 
 class TestAggregator:
     @pytest.fixture

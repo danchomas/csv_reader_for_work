@@ -1,5 +1,5 @@
 import pytest
-from presenter import Presenter
+from src.presenter import Presenter
 
 class TestPresenter:
     def test_print_data(self):

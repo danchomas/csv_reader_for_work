@@ -1,7 +1,7 @@
 import pytest
 import csv
 from typing import List, Dict
-from reader import Reader
+from src.reader import Reader
 
 class TestReader:
     @pytest.fixture

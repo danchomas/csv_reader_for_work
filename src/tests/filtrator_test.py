@@ -1,6 +1,6 @@
 import pytest
 from typing import List, Dict
-from filtrator import Filtrator
+from src.filtrator import Filtrator
 
 
 class TestFiltrator:
